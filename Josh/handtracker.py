@@ -57,7 +57,7 @@ with mp_hands.Hands(
           if hand.classification[0].label == "Right":
             outStr += "Left-"
           elif hand.classification[0].label == "Left":
-            outStr = "Right-"
+            outStr += "Right-"
 
         # Coordinates of the hand landmarks
         for point in mp_hands.HandLandmark:
