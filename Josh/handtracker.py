@@ -77,8 +77,7 @@ with mp_hands.Hands(
         # Coordinates of the hand landmarks
         for point in mp_hands.HandLandmark:
           normalized = hand_landmarks.landmark[point]
-          pixelCoords = mp_drawing._normalized_to_pixel_coordinates(normalized.x, normalized.y, imageHeight, imageWidth)
-          outStr += str(pixelCoords)
+          outStr += f"({normalized.x * imageWidth},{normalized.y * imageHeight},{normalized.z})"
 
         # Timestamp
         dt = datetime.now()
@@ -103,7 +102,7 @@ with mp_hands.Hands(
           outFile.write(handStr + ",")
 
         # Adjust commas in points due to .csv format
-        outStr = re.sub(",", " :", outStr)
+        outStr = re.sub(",", ":", outStr)
 
         # Add commas for .csv format
         outStr = re.sub("\)\(", "),(", outStr)
