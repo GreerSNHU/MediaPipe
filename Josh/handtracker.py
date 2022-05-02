@@ -40,6 +40,9 @@ with mp_hands.Hands(
 
     imageHeight, imageWidth, _ = image.shape
     outStr = ""
+    handStr = ""
+    multihand_tracker = 0
+    iteration = 0
 
     if results.multi_hand_landmarks:
       for hand_landmarks in results.multi_hand_landmarks:
@@ -55,29 +58,58 @@ with mp_hands.Hands(
         for hand in results.multi_handedness:
           # The way mediapipe detects hands is flipped, so we flip it back
           if hand.classification[0].label == "Right":
-            outStr += "Left-"
+            handStr += "Left"
           elif hand.classification[0].label == "Left":
-            outStr += "Right-"
+            handStr += "Right"
 
+          if handStr == "RightLeft" and iteration == 0:
+            multihand_tracker = 1
+            iteration = 1
+          elif handStr == "LeftRight" and iteration == 0:
+            multihand_tracker = 3
+            iteration = 1
+          elif re.match("(Left){2,}", handStr) != None:
+            handStr = "Left"
+          elif re.match("(Right){2,}", handStr) != None:
+            handStr = "Right"            
+
+        outStr = ""
         # Coordinates of the hand landmarks
         for point in mp_hands.HandLandmark:
           normalized = hand_landmarks.landmark[point]
           pixelCoords = mp_drawing._normalized_to_pixel_coordinates(normalized.x, normalized.y, imageHeight, imageWidth)
           outStr += str(pixelCoords)
 
+        # Timestamp
+        dt = datetime.now()
+        dt_str = dt.strftime("%d-%m-%Y @ %H:%M:%S")
+
+        outFile.write(dt_str + ",")
+
+        # Handling for two hands
+        if multihand_tracker == 1:
+          outFile.write("Right,")
+          multihand_tracker = 2
+        elif multihand_tracker == 2:
+          outFile.write("Left,")
+          multihand_tracker = 0
+        elif multihand_tracker == 3:
+          outFile.write("Left,")
+          multihand_tracker = 4
+        elif multihand_tracker == 4:
+          outFile.write("Right,")
+          multihand_tracker = 0
+        else:
+          outFile.write(handStr + ",")
+
         # Adjust commas in points due to .csv format
         outStr = re.sub(",", " :", outStr)
 
         # Add commas for .csv format
         outStr = re.sub("\)\(", "),(", outStr)
-        outStr = re.sub("-", ",", outStr)
-
-        # Timestamp
-        dt = datetime.now()
-        dt_str = dt.strftime("%d-%m-%Y @ %H:%M:%S")
 
         # Write output
-        outFile.write(dt_str + "," + outStr + "\n")
+        outFile.write(outStr + "\n")
 
     # Flip the image horizontally for a selfie-view display.
     cv.imshow('MediaPipe Hands', cv.flip(image, 1))
