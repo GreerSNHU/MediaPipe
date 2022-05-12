@@ -21,6 +21,7 @@ video_path = input("[Optional - ENT for webcam] Input full path of video to oper
 if video_path == "":
   cap = cv.VideoCapture(0)
   writer = None
+  is_video = False
 else:
   cap = cv.VideoCapture(video_path)
   print(f"Opening {video_path}...")
@@ -28,6 +29,7 @@ else:
     print("Error opening video file. Please try again.")
   width, height = cap.read()[1].shape
   writer = cv.VideoWriter("./Videos/Edited/TestVideo.mp4v", cv.VideoWriter_fourcc(*"mp4v"), 30.0, (width, height))
+  is_video = True
 
 with mp_hands.Hands(
     model_complexity = 0,
@@ -38,7 +40,10 @@ with mp_hands.Hands(
     if not success:
       print("Ignoring empty camera frame.")
       # If loading a video, use 'break' instead of 'continue'.
-      break
+      if is_video:
+        break
+      else:
+        continue
 
     # To improve performance, optionally mark the image as not writeable to
     # pass by reference.
