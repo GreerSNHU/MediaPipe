@@ -6,7 +6,8 @@ from datetime import datetime
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
-outFile = open('./Josh/LandmarkData.csv', 'w')
+
+outFile = open('./Josh/HandData.csv', 'w')
 outFile.write("Time,Hand,")
 
 for i in range(21):
@@ -15,18 +16,29 @@ for i in range(21):
     outFile.write(",")
 outFile.write("\n")
 
-# For webcam input:
-cap = cv.VideoCapture(0)
+video_path = input("[Optional - ENT for webcam] Input full path of video to operate on: ")
+
+if video_path == "":
+  cap = cv.VideoCapture(0)
+  writer = None
+else:
+  cap = cv.VideoCapture(video_path)
+  print(f"Opening {video_path}...")
+  if not cap.isOpened():
+    print("Error opening video file. Please try again.")
+  width, height = cap.read()[1].shape
+  writer = cv.VideoWriter("./Videos/Edited/TestVideo.mp4v", cv.VideoWriter_fourcc(*"mp4v"), 30.0, (width, height))
+
 with mp_hands.Hands(
-    model_complexity=0,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5) as hands:
+    model_complexity = 0,
+    min_detection_confidence = 0.5,
+    min_tracking_confidence = 0.5) as hands:
   while cap.isOpened():
     success, image = cap.read()
     if not success:
       print("Ignoring empty camera frame.")
       # If loading a video, use 'break' instead of 'continue'.
-      continue
+      break
 
     # To improve performance, optionally mark the image as not writeable to
     # pass by reference.
@@ -77,7 +89,7 @@ with mp_hands.Hands(
         # Coordinates of the hand landmarks
         for point in mp_hands.HandLandmark:
           normalized = hand_landmarks.landmark[point]
-          outStr += f"({normalized.x * imageWidth},{normalized.y * imageHeight},{normalized.z})"
+          outStr += f"({normalized.x * imageWidth}:{normalized.y * imageHeight}:{normalized.z})"
 
         # Timestamp
         dt = datetime.now()
@@ -102,13 +114,16 @@ with mp_hands.Hands(
           outFile.write(handStr + ",")
 
         # Adjust commas in points due to .csv format
-        outStr = re.sub(",", ":", outStr)
+        # outStr = re.sub(",", ":", outStr)
 
         # Add commas for .csv format
         outStr = re.sub("\)\(", "),(", outStr)
 
         # Write output
         outFile.write(outStr + "\n")
+
+        if writer != None:
+          writer.write(image)
 
     # Flip the image horizontally for a selfie-view display.
     cv.imshow('MediaPipe Hands', cv.flip(image, 1))
@@ -117,4 +132,7 @@ with mp_hands.Hands(
     if cv.waitKey(5) & 0xFF == 27:
       outFile.close()
       break
+
 cap.release()
+if writer != None:
+  writer.release()
