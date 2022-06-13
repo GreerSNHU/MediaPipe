@@ -20,7 +20,6 @@ video_path = input("[Optional - ENT for webcam] Input full path of video to oper
 
 if video_path == "":
   cap = cv.VideoCapture(0)
-  writer = None
   is_video = False
 else:
   cap = cv.VideoCapture(video_path)
@@ -121,9 +120,6 @@ with mp_hands.Hands(
 
         # Write output
         outFile.write(outStr + "\n")
-
-        if writer != None:
-          writer.write(image)
 
     # Flip the image horizontally for a selfie-view display.
     cv.imshow('MediaPipe Hands', cv.flip(image, 1))
