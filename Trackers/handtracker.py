@@ -7,7 +7,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
-outFile = open('./Josh/HandData.csv', 'w')
+outFile = open(f'./Trackers/Data/Hands{datetime.now().strftime("%d-%m-%y_%H-%M")}.csv', 'w')
 outFile.write("Time,Hand,")
 
 for i in range(21):

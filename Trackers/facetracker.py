@@ -7,7 +7,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_face_mesh = mp.solutions.face_mesh
 
-outFile = open('./Josh/FaceData.csv', 'w')
+outFile = open(f'./Trackers/Data/Face{datetime.now().strftime("%d-%m-%y_%H-%M")}.csv', 'w')
 outFile.write("Time,")
 
 for i in range(478):
