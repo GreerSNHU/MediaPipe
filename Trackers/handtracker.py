@@ -27,8 +27,6 @@ else:
   print(f"Opening {video_path}...")
   if not cap.isOpened():
     print("Error opening video file. Please try again.")
-  width, height = cap.read()[1].shape
-  writer = cv.VideoWriter("./Videos/Edited/TestVideo.mp4v", cv.VideoWriter_fourcc(*"mp4v"), 30.0, (width, height))
   is_video = True
 
 with mp_hands.Hands(
@@ -118,9 +116,6 @@ with mp_hands.Hands(
         else:
           outFile.write(handStr + ",")
 
-        # Adjust commas in points due to .csv format
-        # outStr = re.sub(",", ":", outStr)
-
         # Add commas for .csv format
         outStr = re.sub("\)\(", "),(", outStr)
 
@@ -139,5 +134,3 @@ with mp_hands.Hands(
       break
 
 cap.release()
-if writer != None:
-  writer.release()
